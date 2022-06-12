@@ -10,7 +10,8 @@ import java.util.List;
 @Service
 public class DiscussPostService {
     @Autowired
-    DiscussPostMapper discussPostMapper;
+    private DiscussPostMapper discussPostMapper;
+
     public List<DiscussPost> findDiscussPosts(int userID,int offset,int limit)
     {
         return discussPostMapper.selectDiscussPosts(userID, offset, limit);
