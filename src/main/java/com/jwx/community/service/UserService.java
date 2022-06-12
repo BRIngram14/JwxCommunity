@@ -2,6 +2,7 @@ package com.jwx.community.service;
 
 import com.jwx.community.dao.LoginTicketMapper;
 import com.jwx.community.dao.UserMapper;
+import com.jwx.community.entity.LoginTicket;
 import com.jwx.community.entity.User;
 import com.jwx.community.util.CommunityConstant;
 import com.jwx.community.util.CommunityUtil;
@@ -133,11 +134,11 @@ public class UserService implements CommunityConstant {
             map.put("passwordMsg","密码不能为空");
             return map;
         }
-        //验证账号
+        //验证账号合法性
         User user = userMapper.selectByName(username);
         if(user==null)
         {
-            map.put("usernameMsg","账号未激活");
+            map.put("usernameMsg","账号不存在");
             return map;
         }
         if(user.getStatus()==0)
@@ -153,10 +154,23 @@ public class UserService implements CommunityConstant {
             return map;
         }
         //生成登录凭证
-
+        LoginTicket loginTicket = new LoginTicket();
+        loginTicket.setUserId(user.getId());
+        loginTicket.setStatus(0);
+        loginTicket.setTicket(CommunityUtil.generateUUID());//随机生成的身份码
+        loginTicket.setExpired(new Date(System.currentTimeMillis()+expiredSeconds*1000));
+        loginTicketMapper.insertLoginTicket(loginTicket);
+        map.put("ticket",loginTicket.getTicket());
 
         return map;
     }
-
+        public void logout(String ticket)
+        {
+            loginTicketMapper.updateStatus(ticket,1);
+        }
+        public LoginTicket findLoginTicket(String ticket)
+        {
+            return loginTicketMapper.selectByTicket(ticket);
+        }
 
 }

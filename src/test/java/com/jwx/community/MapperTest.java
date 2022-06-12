@@ -27,12 +27,12 @@ public class MapperTest {
     @Test
     public void test1()
     {
-        User user = userMapper.selectById(101);
-        System.out.println(user);
-        User user1 = userMapper.selectByEmail("nowcoder111@sina.com");
-        System.out.println(user1);
-        User user2 = userMapper.selectByName("ddd");
-        System.out.println(user2);
+//        User user = userMapper.selectById(101);
+//        System.out.println(user);
+//        User user1 = userMapper.selectByEmail("nowcoder111@sina.com");
+//        System.out.println(user1);
+//        User user2 = userMapper.selectByName("ddd");
+// System.out.println(user2);
 //        User user = new User();
 //        user.setUsername("kobe");
 //        user.setPassword("824");
@@ -42,6 +42,7 @@ public class MapperTest {
 //        user.setCreateTime(new Date());
 //        int count = userMapper.insertUser(user);
 //        System.out.println(count);
+        userMapper.updateStatus(150,1);
 //        int i = userMapper.updateStatus(150, 1);
 //        System.out.println(i);
 //        int i1 = userMapper.updateHeader(150, "KobeBryant");
