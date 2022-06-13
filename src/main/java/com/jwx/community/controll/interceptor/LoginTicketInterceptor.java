@@ -48,7 +48,7 @@ public class LoginTicketInterceptor  implements HandlerInterceptor {
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
         User user = hostHolder.getUser();
         if (user != null && modelAndView != null) {
-            modelAndView.addObject("loginUser", user);
+            modelAndView.addObject("LoginUser", user);
         }
     }
 

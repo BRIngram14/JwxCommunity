@@ -35,7 +35,7 @@
 							<li class="nav-item ml-3 btn-group-vertical" th:if="${LoginUser==null}">
 								<a class="nav-link" th:href="@{/login}">登录</a>
 							</li>
-							<li class="nav-item ml-3 btn-group-vertical dropdown">
+							<li class="nav-item ml-3 btn-group-vertical dropdown" th:if="${LoginUser!=null}">
 								<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 									<img th:src="${LoginUser.headerUrl}" class="rounded-circle" style="width:30px;"/>
 								</a>
