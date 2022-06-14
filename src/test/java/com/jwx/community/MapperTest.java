@@ -42,7 +42,7 @@ public class MapperTest {
 //        user.setCreateTime(new Date());
 //        int count = userMapper.insertUser(user);
 //        System.out.println(count);
-        userMapper.updateStatus(150,1);
+        userMapper.updateStatus(155,1);
 //        int i = userMapper.updateStatus(150, 1);
 //        System.out.println(i);
 //        int i1 = userMapper.updateHeader(150, "KobeBryant");

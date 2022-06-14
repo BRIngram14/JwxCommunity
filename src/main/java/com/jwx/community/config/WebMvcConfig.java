@@ -1,5 +1,6 @@
 package com.jwx.community.config;
 
+import com.jwx.community.controll.interceptor.LoginRequiredInterceptor;
 import com.jwx.community.controll.interceptor.LoginTicketInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -10,11 +11,18 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Autowired
     private LoginTicketInterceptor loginTicketInterceptor;
 
+    @Autowired
+    private LoginRequiredInterceptor loginRequiredInterceptor;
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         //添加一个拦截器,拦截除了静态资源外的路径
         registry.addInterceptor(loginTicketInterceptor)
-                .excludePathPatterns("/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/**/*.jpeg");
+                .excludePathPatterns("/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg",
+                        "/swagger-ui.html","/swagger-resources/**","/webjars/**","/**/*.jpeg","/doc.html");
+
+        registry.addInterceptor(loginRequiredInterceptor)
+                .excludePathPatterns("/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg",
+                        "/swagger-ui.html","/swagger-resources/**","/webjars/**","/**/*.jpeg","/doc.html");
 
 
     }

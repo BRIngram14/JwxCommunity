@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -173,4 +172,9 @@ public class UserService implements CommunityConstant {
             return loginTicketMapper.selectByTicket(ticket);
         }
 
+        public int updateHeader(int userId,String headUrl)
+        {
+            return userMapper.updateHeader(userId,headUrl);
+        }
+        public int updatePassword(int userId,String password){return userMapper.updatePassword(userId,password);}
 }
