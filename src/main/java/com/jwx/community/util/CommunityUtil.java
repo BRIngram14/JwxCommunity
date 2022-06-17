@@ -1,9 +1,14 @@
 package com.jwx.community.util;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.DigestUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class CommunityUtil {
@@ -19,4 +24,30 @@ public class CommunityUtil {
          //加密成16进制的字符串返回 输入要是byte类型的
          return DigestUtils.md5DigestAsHex(key.getBytes());
      }
+     public static String getJSONString(int code, String msg, Map<String,Object> map)
+     {//封装成json对象
+
+         JSONObject json=new JSONObject();
+         json.put("code",code);
+         json.put("msg",msg);
+         if(map!=null)
+         {
+             for(String key:map.keySet())
+             {
+                 json.put(key,map.get(key));
+             }
+         }
+         return json.toJSONString();
+     }
+    public static String getJSONString(int code, String msg)
+    {//重载
+        return getJSONString(code, msg,null);
+
+    }
+    public static String getJSONString(int code)
+    {//重载
+        return getJSONString(code, null,null);
+    }
+
+
 }
