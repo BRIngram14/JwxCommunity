@@ -11,7 +11,7 @@ public class Page {
     private String path;
 
     //获取当前页的起始行
-    public int getoffset()
+    public int getOffset()
     {
         return (current-1)*limit;
     }

@@ -6,6 +6,7 @@ import com.jwx.community.dao.UserMapper;
 import com.jwx.community.entity.DiscussPost;
 import com.jwx.community.entity.LoginTicket;
 import com.jwx.community.entity.User;
+import com.jwx.community.util.CommunityUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,7 +28,7 @@ public class MapperTest {
     @Test
     public void test1()
     {
-//        User user = userMapper.selectById(101);
+       User user = userMapper.selectById(151);
 //        System.out.println(user);
 //        User user1 = userMapper.selectByEmail("nowcoder111@sina.com");
 //        System.out.println(user1);
@@ -42,12 +43,13 @@ public class MapperTest {
 //        user.setCreateTime(new Date());
 //        int count = userMapper.insertUser(user);
 //        System.out.println(count);
-        userMapper.updateStatus(155,1);
+//        userMapper.updateStatus(155,1);
 //        int i = userMapper.updateStatus(150, 1);
 //        System.out.println(i);
 //        int i1 = userMapper.updateHeader(150, "KobeBryant");
 //        System.out.println(i1);
-//        int i2 = userMapper.updatePassword(150, "248");
+        String password= CommunityUtil.md5("123"+user.getSalt());
+        int i2 = userMapper.updatePassword(151, password);
 //        System.out.println(i2);
     }
 
