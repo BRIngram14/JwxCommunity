@@ -6,7 +6,7 @@ import java.util.Date;
  * @author jwx
  * @create 2022-06-19-21:18
  */
-public class message {
+public class Message {
     private int id;
     private int fromId;
     private int toId;
