@@ -3,7 +3,10 @@ package com.jwx.community.controll;
 import com.jwx.community.annotation.LoginRequired;
 import com.jwx.community.dao.UserMapper;
 import com.jwx.community.entity.User;
+import com.jwx.community.service.FollowService;
+import com.jwx.community.service.LikeService;
 import com.jwx.community.service.UserService;
+import com.jwx.community.util.CommunityConstant;
 import com.jwx.community.util.CommunityUtil;
 import com.jwx.community.util.HostHolder;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +29,7 @@ import java.io.*;
 //显示user个人信息
 @Controller
 @RequestMapping("/user")
-public class UserController {
+public class UserController implements CommunityConstant {
     private static final Logger logger= LoggerFactory.getLogger(UserController.class);
 
     @Value("${community.path.upload}")
@@ -44,6 +47,11 @@ public class UserController {
     @Autowired
     private HostHolder hostHolder;
 
+    @Autowired
+    private LikeService likeService;
+
+    @Autowired
+    private FollowService followService;
 
     @LoginRequired
     @RequestMapping(path = "/setting",method = RequestMethod.GET)
@@ -132,6 +140,35 @@ public class UserController {
         }
         return "redirect:/index";
     }
+    //个人主页
+    @RequestMapping(path="/profile/{userId}",method = RequestMethod.GET)
+    public String getProfilePage(@PathVariable("userId")int userId,Model model)
+    {
+        User user = userService.findUserById(userId);
+        if(user==null){
+            throw new RuntimeException("该用户不存在！");
+        }
+        model.addAttribute("user",user);
+        int likeCount = likeService.findUserLikeCount(userId);
+        model.addAttribute("likeCount",likeCount);
+        //关注数量
+        long followeeCount = followService.findFolloweeCount(userId, ENTITY_TYPE_USER);
 
+        model.addAttribute("followeeCount",followeeCount);
+        //粉丝数量
+        long followerCount = followService.findFollowerCount(ENTITY_TYPE_USER, userId);
+        model.addAttribute("followerCount",followerCount);
+        //是否已关注
+        boolean hasFollowed =false;
+        if(hostHolder.getUser()!=null)
+        {
+            //userId是访问的那个主页的人的id
+            hasFollowed=followService.hasFollowed(hostHolder.getUser().getId(),ENTITY_TYPE_USER,userId);
+        }
+        model.addAttribute("hasFollowed",hasFollowed);
+
+
+        return "/site/profile";
+    }
 
 }

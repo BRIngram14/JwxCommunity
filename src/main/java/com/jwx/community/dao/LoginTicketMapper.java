@@ -4,6 +4,7 @@ import com.jwx.community.entity.LoginTicket;
 import org.apache.ibatis.annotations.*;
 
 @Mapper
+@Deprecated
 public interface LoginTicketMapper {
     //主键自增并赋给id属性
     @Insert({"insert into login_ticket(user_id,ticket,status,expired)",
