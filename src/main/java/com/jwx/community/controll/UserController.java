@@ -57,8 +57,11 @@ public class UserController implements CommunityConstant {
     @RequestMapping(path = "/setting",method = RequestMethod.GET)
     public String getSettingPage()
     {
+
         return "/site/setting";
     }
+
+    //废弃
     @LoginRequired
     @RequestMapping(path = "/upload",method = RequestMethod.POST)
     public String uploadHeader(MultipartFile headerImage, Model model)
@@ -93,6 +96,8 @@ public class UserController implements CommunityConstant {
         return "redirect:/index";
 
     }
+
+    //废弃
     @RequestMapping(path="header/{filename}",method = RequestMethod.GET)
     public void getHeader(@PathVariable("filename")String filename, HttpServletResponse response)
     {//获取头像

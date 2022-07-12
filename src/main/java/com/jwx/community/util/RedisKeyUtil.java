@@ -1,5 +1,7 @@
 package com.jwx.community.util;
 
+import org.apache.kafka.common.protocol.types.Field;
+
 public class RedisKeyUtil {
     private static final String SPLIT =":";
     private static final String PREFIX_ENTITY_LIKE="like:entity";
@@ -9,6 +11,9 @@ public class RedisKeyUtil {
     private static final String PREFIX_KAPTCHA="kaptcha";//验证码
     private static final String PREFIX_TICKET="ticket";//登录凭证
     private static final String PREFIX_USER="user";
+    private static final String PREFIX_UV="uv";//独立访客
+    private static final String PREFIX_DAU="dau";//日活跃用户
+    private static final String PREFIX_POST="post";
     //某个实体的赞
     //like:entity:entityType:entityId->set(userId)
     public static String getEntityLikeKey(int entityType,int entityId)
@@ -46,5 +51,28 @@ public class RedisKeyUtil {
     {
         return PREFIX_USER+SPLIT+userId;
     }
+    //单日UV
+    public static String getUVKey(String date){
+        return PREFIX_UV+SPLIT+date;
+    }
+    //区间UV
+    public static String getUVKey(String startDate,String endDate){
+        return PREFIX_UV+SPLIT+startDate+SPLIT+endDate;
+    }
+    //单日活跃用户
+    public static String getDAUKey(String date)
+    {
+        return PREFIX_DAU+SPLIT+date;
+    }
+    //区间活跃用户
+    public static String getDAUKey(String startDate,String endDate)
+    {
+        return PREFIX_DAU+SPLIT+startDate+SPLIT+endDate;
+    }
 
+    //帖子分数
+    public static String getPostScoreKey()
+    {
+        return PREFIX_POST+SPLIT+"score";
+    }
 }

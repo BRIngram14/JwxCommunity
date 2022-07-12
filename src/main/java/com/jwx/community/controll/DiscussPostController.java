@@ -1,17 +1,14 @@
 package com.jwx.community.controll;
 
-import com.jwx.community.entity.Comment;
-import com.jwx.community.entity.DiscussPost;
-import com.jwx.community.entity.Page;
-import com.jwx.community.entity.User;
-import com.jwx.community.service.CommentService;
-import com.jwx.community.service.DiscussPostService;
-import com.jwx.community.service.LikeService;
-import com.jwx.community.service.UserService;
+import com.jwx.community.entity.*;
+import com.jwx.community.event.EventProducer;
+import com.jwx.community.service.*;
 import com.jwx.community.util.CommunityConstant;
 import com.jwx.community.util.CommunityUtil;
 import com.jwx.community.util.HostHolder;
+import com.jwx.community.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,6 +31,12 @@ public class DiscussPostController implements CommunityConstant {
     private CommentService commentService;
     @Autowired
     private LikeService likeService;
+    @Autowired
+    private ElasticsearchService elasticsearchService;
+    @Autowired
+    private EventProducer eventProducer;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @RequestMapping(path="add",method = RequestMethod.POST)
     @ResponseBody
@@ -50,6 +53,21 @@ public class DiscussPostController implements CommunityConstant {
         discussPost.setCreateTime(new Date());
         discussPost.setUserId(user.getId());
         discussPostService.addDiscussPost(discussPost);
+
+        //触发发帖事件
+        Event event = new Event()
+                .setTopic(TOPIC_PUBLISH)
+                .setUserId(user.getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(discussPost.getId()) ;
+        eventProducer.fireEvent(event);
+
+        //计算帖子分数
+        String redisKey= RedisKeyUtil.getPostScoreKey();
+        redisTemplate.opsForSet().add(redisKey,discussPost.getId());
+
+
+
         //报错的情况 将来统一处理
         return CommunityUtil.getJSONString(0,"发布成功");
     }
@@ -130,5 +148,58 @@ public class DiscussPostController implements CommunityConstant {
         return "/site/discuss-detail";
     }
 
+    //置顶
+    @RequestMapping(path = "/top",method = RequestMethod.POST)
+    @ResponseBody
+    public String setTop(int id)
+    {
+        discussPostService.updateType(id,1);
+        //触发发帖事件 更新到elasticsearch中
+        Event event = new Event()
+                .setTopic(TOPIC_PUBLISH)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(id);
+        eventProducer.fireEvent(event);
+        return CommunityUtil.getJSONString(0);
 
+    }
+
+    //加精
+    @RequestMapping(path = "/wonderful",method = RequestMethod.POST)
+    @ResponseBody
+    public String setwonderful(int id)
+    {
+        discussPostService.updateStatus(id,1);
+        //触发发帖事件 更新到elasticsearch中
+        Event event = new Event()
+                .setTopic(TOPIC_PUBLISH)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(id);
+        eventProducer.fireEvent(event);
+
+        //计算帖子分数
+        String redisKey= RedisKeyUtil.getPostScoreKey();
+        redisTemplate.opsForSet().add(redisKey,id);
+        return CommunityUtil.getJSONString(0);
+
+    }
+
+    //删除
+    @RequestMapping(path = "/delete",method = RequestMethod.POST)
+    @ResponseBody
+    public String setdelete(int id)
+    {
+        discussPostService.updateType(id,2);
+        //触发删帖事件 更新到elasticsearch中
+        Event event = new Event()
+                .setTopic(TOPIC_DELETE)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(id);
+        eventProducer.fireEvent(event);
+        return CommunityUtil.getJSONString(0);
+
+    }
 }

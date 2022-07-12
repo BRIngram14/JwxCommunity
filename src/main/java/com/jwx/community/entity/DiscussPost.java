@@ -1,16 +1,40 @@
 package com.jwx.community.entity;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
+
 import java.util.Date;
 
+@Document(indexName = "discusspost",type = "doc",shards=6,replicas = 3)
 public class DiscussPost {
+    @Id
     private int id;
+
+    @Field(type= FieldType.Integer)
     private int userId;
+    //analyzer存储解析器 尽可能拆分成更多的词条 增加搜索范围
+    //searchAnalyzer搜索解析器 不会拆出太多 只拆出一些有用的
+    @Field(type = FieldType.Text,analyzer = "ik_max_word",searchAnalyzer = "ik_smart")
     private String title;
+
+    @Field(type = FieldType.Text,analyzer = "ik_max_word",searchAnalyzer = "ik_smart")
     private String content;
+
+    @Field(type= FieldType.Integer)
     private int type;
+
+    @Field(type= FieldType.Integer)
     private int status;
+
+    @Field(type = FieldType.Date)
     private Date createTime;
+
+    @Field(type= FieldType.Integer)
     private int commentCount;
+
+    @Field(type= FieldType.Integer)
     private double score;
 
     @Override

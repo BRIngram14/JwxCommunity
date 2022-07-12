@@ -8,6 +8,14 @@ function publish() {
 	//发布后隐藏发布的框
 	$("#publishModal").modal("hide");
 
+	//发送AJAX请求之前 将CSRF令牌设置到请求的消息头中
+	//取到name等于csrf的meta元素的content属性值
+	// var token=$("meta[name='_csrf']").attr("content");
+	// var header=$("meta[name='_csrf_header']").attr("content");
+	// $(document).ajaxSend(function (e,xhr,options){
+	// 	xhr.setRequestHeader(header,token);
+	// });
+
 	//获取标题和内容
 	var title =$("#recipient-name").val();//标题的id
 	var content=$("#message-text").val();

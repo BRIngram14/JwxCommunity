@@ -9,14 +9,17 @@ import com.jwx.community.entity.LoginTicket;
 import com.jwx.community.entity.Message;
 import com.jwx.community.entity.User;
 import com.jwx.community.util.CommunityUtil;
-import org.junit.jupiter.api.Test;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Date;
 import java.util.List;
-
+@RunWith(SpringRunner.class)
 @SpringBootTest
 @ContextConfiguration(classes = CommunityApplication.class)
 public class MapperTest {
@@ -58,7 +61,7 @@ public class MapperTest {
 
     @Test
     public void test2() {
-        List<DiscussPost> discussPosts = discussPostMapper.selectDiscussPosts(0, 0, 10);
+        List<DiscussPost> discussPosts = discussPostMapper.selectDiscussPosts(0, 0, 10,0);
         for (DiscussPost list : discussPosts)
             System.out.println(list);
 

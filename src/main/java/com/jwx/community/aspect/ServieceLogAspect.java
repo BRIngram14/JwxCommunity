@@ -15,7 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Component
-@Aspect
+//@Aspect
 public class ServieceLogAspect {
     private static final Logger logger= LoggerFactory.getLogger(ServieceLogAspect.class);
     @Pointcut("execution(* com.jwx.community.service.*.*(..))")

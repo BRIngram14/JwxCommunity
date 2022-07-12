@@ -1,30 +1,105 @@
 package com.jwx.community.service;
 
+
+import com.github.benmanes.caffeine.cache.CacheLoader;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.jwx.community.dao.DiscussPostMapper;
 import com.jwx.community.entity.DiscussPost;
 import com.jwx.community.util.SensitiveFilter;
+import com.mysql.cj.log.Log;
+import io.swagger.models.auth.In;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.HtmlUtils;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class DiscussPostService {
+    private static final Logger logger= LoggerFactory.getLogger(DiscussPostService.class);
     @Autowired
     private DiscussPostMapper discussPostMapper;
 
     @Autowired
     private SensitiveFilter sensitiveFilter;
+    @Value("${caffeine.posts.max-size}")
+    private int maxSize;
 
-    public List<DiscussPost> findDiscussPosts(int userID,int offset,int limit)
-    {
-        return discussPostMapper.selectDiscussPosts(userID, offset, limit);
+    @Value("${caffeine.posts.expire-seconds}")
+    private int expireSeconds;
+
+    //Caffeine 核心接口:Cache ,LoadingCache ,AsyncLoadingCache
+
+    //帖子列表缓存
+    private com.github.benmanes.caffeine.cache.LoadingCache<String,List<DiscussPost>> postListCache;
+    //帖子总数缓存
+    private com.github.benmanes.caffeine.cache.LoadingCache<Integer,Integer>postRowsCache;
+    @PostConstruct
+    public void init(){
+        //初始化帖子列表缓存
+        postListCache= Caffeine.newBuilder()
+                .maximumSize(maxSize).expireAfterWrite(expireSeconds, TimeUnit.SECONDS)
+                .build(new CacheLoader<String, List<DiscussPost>>() {
+                    //从缓存里取数据的时候，如果有就返回 没有的话得知道怎么去查这个数据
+                    // 然后装到缓存里 所以要提供查询数据库的方法
+                    @Override
+                    public @Nullable List<DiscussPost> load(@NonNull String key) throws Exception {
+                        if(key==null||key.length()==0)
+                        {
+                            throw new IllegalArgumentException("参数错误！");
+                        }
+                        String[] params = key.split(":");
+                        if(params==null||params.length!=2)
+                        {
+                            throw new IllegalArgumentException("参数错误！");
+                        }
+                        int offset=Integer.valueOf(params[0]);
+                        int limit=Integer.valueOf(params[1]);
+
+                        //也可以加个二级缓存:Redis->mysql
+                        logger.debug("load post list from DB.");
+                        return discussPostMapper.selectDiscussPosts(0,offset,limit,1);
+                    }
+                });
+
+        //初始化帖子总数缓存
+        postRowsCache=Caffeine.newBuilder()
+                .maximumSize(15).expireAfterWrite(expireSeconds,TimeUnit.SECONDS)
+                .build(new CacheLoader<Integer, Integer>() {
+                    @Override
+                    public @Nullable Integer load(@NonNull Integer key) throws Exception {
+                        logger.debug("load post list from DB.");
+                        return discussPostMapper.selectDiscussPostRows(key);
+                    }
+                });
+    }
+
+    public List<DiscussPost> findDiscussPosts(int userID,int offset,int limit,int orderMode)
+    {//userId为0的时候是查询首页
+//        if(userID==0&&orderMode==1)
+//        {//访问首页热帖的时候直接去本地缓存取
+//            return postListCache.get(offset+":"+limit);
+//        }
+        logger.debug("load post list from DB.");
+        return discussPostMapper.selectDiscussPosts(userID, offset, limit,orderMode);
     }
     public int findDiscussPostRows(int userId)
     {
+//        if(userId==0)
+//        {
+//            return postRowsCache.get(userId);
+//        }
+        logger.debug("load post rows from DB.");
         return discussPostMapper.selectDiscussPostRows(userId);
     }
+
     public int addDiscussPost(DiscussPost post)
     {
         if(post==null)
@@ -47,4 +122,13 @@ public class DiscussPostService {
     {
         return discussPostMapper.updateCommentCount(id, commentCount);
     }
+    public int updateType(int id,int type)
+    {
+        return discussPostMapper.updateType(id, type);
+    }
+    public int updateStatus(int id,int status)
+    {
+        return discussPostMapper.updateStatus(id, status);
+    }
+    public int updateScore(int id,double score){return discussPostMapper.updateScore(id,score);}
 }

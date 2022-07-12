@@ -1,5 +1,6 @@
 package com.jwx.community.config;
 
+import com.jwx.community.controll.interceptor.DataInterceptor;
 import com.jwx.community.controll.interceptor.LoginRequiredInterceptor;
 import com.jwx.community.controll.interceptor.LoginTicketInterceptor;
 import com.jwx.community.controll.interceptor.MessageInterceptor;
@@ -12,12 +13,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebMvcConfig implements WebMvcConfigurer {
     @Autowired
     private LoginTicketInterceptor loginTicketInterceptor;
-
-    @Autowired
-    private LoginRequiredInterceptor loginRequiredInterceptor;
+//
+//    @Autowired
+//    private LoginRequiredInterceptor loginRequiredInterceptor;
 
     @Autowired
     private MessageInterceptor messageInterceptor;
+
+    @Autowired
+    private DataInterceptor dataInterceptor;
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         //添加一个拦截器,拦截除了静态资源外的路径
@@ -25,14 +29,17 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg",
                         "/swagger-ui.html","/swagger-resources/**","/webjars/**","/**/*.jpeg","/doc.html");
 
-        registry.addInterceptor(loginRequiredInterceptor)
-                .excludePathPatterns("/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg",
-                        "/swagger-ui.html","/swagger-resources/**","/webjars/**","/**/*.jpeg","/doc.html");
+//        registry.addInterceptor(loginRequiredInterceptor)
+//                .excludePathPatterns("/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg",
+//                        "/swagger-ui.html","/swagger-resources/**","/webjars/**","/**/*.jpeg","/doc.html");
 
         registry.addInterceptor(messageInterceptor)
                 .excludePathPatterns("/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg",
                         "/swagger-ui.html","/swagger-resources/**","/webjars/**","/**/*.jpeg","/doc.html");
 
+        registry.addInterceptor(dataInterceptor)
+                .excludePathPatterns("/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg",
+                        "/swagger-ui.html","/swagger-resources/**","/webjars/**","/**/*.jpeg","/doc.html");
 
     }
 }
